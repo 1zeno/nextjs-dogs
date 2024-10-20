@@ -1,8 +1,7 @@
 "use server";
 
+import { PHOTO_DELETE, PHOTO_GET, PHOTO_POST, PHOTOS_GET } from "@/api";
 import { getCookie } from "./cookie";
-
-export const API_URL = "https://dogsapi.origamid.dev/json";
 
 export type Photo = {
     id?: string;
@@ -13,7 +12,7 @@ export type Photo = {
 }
 
 export async function createPhoto(formData: FormData){
-    const responseCookie = await getCookie("auth_token");
+    const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     const usuario: Photo = {
@@ -24,14 +23,8 @@ export async function createPhoto(formData: FormData){
     }
 
     try {
-        const response = await fetch(`${API_URL}/api/photo`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-            body: JSON.stringify(usuario),
-        })
+        const { url, options } = PHOTO_POST(usuario, responseCookie.cookie?.value);
+        const response = await fetch(url, options);
         if(!response.ok) throw new Error("Erro ao adicionar usuário.");
     } catch (error: unknown) {
         if(error instanceof Error){
@@ -50,22 +43,21 @@ export async function getPhotos(params:{
     total: number,
     user: string,
 }) {
-    const responseCookie = await getCookie("auth_token");
+    const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const response = await fetch(`${API_URL}/api/photo/?_page=${params.page}&_total=${params.total}&_user=${params.user}`, {
-            method: "GET",
-            cache: "no-store",
-            headers: {
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-        })
+        const { url, options } = PHOTOS_GET(params);
+        const response = await fetch(url, options);
 
         if(!response.ok) throw new Error("Erro ao buscar fotos.");
 
         const data = await response.json();
-        return data;
+        return {
+            data,
+            ok: true,
+            error: "",
+        };
     } catch (error: unknown) {
         if(error instanceof Error){
             return {
@@ -79,22 +71,21 @@ export async function getPhotos(params:{
 }
 
 export async function getPhotoById(id: string) {
-    const responseCookie = await getCookie("auth_token");
+    const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const response = await fetch(`${API_URL}/api/photo/${id}`, {
-            method: "GET",
-            cache: "no-store",
-            headers: {
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-        })
+        const { url, options } = PHOTO_GET(id);
+        const response = await fetch(url, options)
 
         if(!response.ok) throw new Error("Erro ao buscar foto.");
 
         const data = await response.json();
-        return data;
+        return {
+            data,
+            ok: true,
+            error: "",
+        };
     } catch (error: unknown) {
         if(error instanceof Error){
             return {
@@ -108,16 +99,12 @@ export async function getPhotoById(id: string) {
 }
 
 export async function deletePhoto(id: string) {
-    const responseCookie = await getCookie("auth_token");
+    const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const response = await fetch(`${API_URL}/api/photo/${id}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-        })
+        const { url, options } = PHOTO_DELETE(id, responseCookie.cookie?.value);
+        const response = await fetch(url, options)
 
         if(!response.ok) throw new Error("Erro ao buscar foto.");
 

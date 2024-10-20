@@ -1,46 +1,27 @@
 "use server";
 
+import { USER_GET, USER_POST } from "@/api";
 import { getCookie } from "./cookie";
-
-export const API_URL = "https://dogsapi.origamid.dev/json";
 
 export type Usuario = {
     id?: string;
     username: string;
     email: string;
-    password: string;
-}
-
-function validarNome(nome: unknown) {
-    return typeof nome === "string" && nome.length > 1;
-}
-function validarPreco(preco: unknown) {
-    return typeof preco === "number" && preco > 0;
 }
 
 export async function createUser(formData: FormData){
 
-    const usuario: Usuario = {
+    const usuario = {
         username: formData.get("username") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
     }
 
-    const errors = [];
-
-    if(!validarNome(usuario.username)) errors.push("Nome inválido.");
-    if(!validarPreco(usuario.email)) errors.push("Preço inválido.");
-
-    if(errors.length > 0) return { errors };
-
     try {
-        const response = await fetch(`${API_URL}/api/user`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(usuario),
-        })
+        const {url, options} = USER_POST(usuario);
+        const response = await fetch(url, options)
+        const data = await response.json();
+        console.log("data", data);
         if(!response.ok) throw new Error("Erro ao adicionar usuário.");
     } catch (error: unknown) {
         if(error instanceof Error){
@@ -55,21 +36,21 @@ export async function createUser(formData: FormData){
 }
 
 export async function getUser() {
-    const responseCookie = await getCookie("auth_token");
-    if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
-
     try {
-        const response = await fetch(`${API_URL}/api/user`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-        })
+        const responseCookie = await getCookie("token");
+        if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
+
+        const {url, options} = USER_GET(responseCookie.cookie?.value);
+        const response = await fetch(url, options)
 
         if(!response.ok) throw new Error("Erro ao buscar usuário.");
 
-        const data = await response.json();
-        return data as Usuario;
+        const data: Usuario = await response.json();
+        return {
+            data,
+            ok: true,
+            error: "",
+        };
     } catch (error: unknown) {
         if(error instanceof Error){
             return {

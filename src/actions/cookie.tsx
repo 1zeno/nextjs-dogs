@@ -17,3 +17,11 @@ export async function getCookie(key: string) {
     }
     return {ok: false};
 }
+
+export async function removeCookie(key: string) {
+    if(cookies().has(key)){
+        const cookie = cookies().delete(key)
+        return {cookie, ok: true};
+    }
+    return {ok: false};
+}

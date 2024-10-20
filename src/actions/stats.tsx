@@ -1,25 +1,25 @@
 "use server";
 
+import { STATS_GET } from "@/api";
 import { getCookie } from "./cookie";
 
-export const API_URL = "https://dogsapi.origamid.dev/json";
-
 export async function getStats() {
-    const responseCookie = await getCookie("auth_token");
+    const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const response = await fetch(`${API_URL}/api/stats`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${responseCookie.cookie}`,
-            },
-        })
 
-        if(!response.ok) throw new Error("Erro ao buscar usuário.");
+        const { url, options } = STATS_GET(responseCookie.cookie?.value)
+        const response = await fetch(url, options)
+
+        if(!response.ok) throw new Error("Erro ao buscar status.");
 
         const data = await response.json();
-        return data;
+        return {
+            data,
+            ok: true,
+            error: "",
+        };
     } catch (error: unknown) {
         if(error instanceof Error){
             return {
