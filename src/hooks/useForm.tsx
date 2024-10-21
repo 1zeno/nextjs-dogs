@@ -15,12 +15,12 @@ const types = {
     },
 }
 
-const useForm = (type?: any) => {
+const useForm = (type?: string | false) => {
 
     const [value, setValue] = React.useState("");
-    const [error, setError] = React.useState(null);
+    const [error, setError] = React.useState<string | null>(null);
 
-    const validate = (value) => {
+    const validate = (value: string) => {
         if(type === false){
             return true;
         }
@@ -40,7 +40,7 @@ const useForm = (type?: any) => {
         return true;
     }
 
-    const onChange = ({target}) => {
+    const onChange = ({target}: {target: React.ChangeEvent}) => {
         if(error) {
             validate(target.value);
         }

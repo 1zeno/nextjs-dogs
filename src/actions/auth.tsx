@@ -1,36 +1,41 @@
 "use server";
 
-import { PASSWORD_LOST, PASSWORD_RESET, TOKEN_POST, TOKEN_VALIDATE_POST } from "@/api";
+import { PASSWORD_LOST, PASSWORD_RESET, TOKEN_POST, TOKEN_VALIDATE_POST } from "@/functions/api";
 import { getCookie, setCookie } from "./cookie";
-import { getUser } from "./user";
+import apiError from "@/functions/api-error";
+import { redirect } from "next/navigation";
 
-export async function login(body: {
-    username: string;
-    password: string;
-}){
+export async function login(state: {}, formData: FormData) {
+
+    const username = formData.get("username") as string | null
+    const password = formData.get("password") as string | null
+
     try {
-        const { url, options } = TOKEN_POST(body);
-        const response = await fetch(url, options)
+        if(!username || !password) {
+            throw new Error("Preencha os dados.");
+        }
+        const { url } = TOKEN_POST();
+        const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+        })
 
         if(!response.ok) {
-            const json = await response.json();
-            throw new Error(`Erro ao autenticar usuário. ${json.message}`);
+            throw new Error("Erro ao autenticar usuário. Verifique se os dados estão corretos.");
         }
 
         const data = await response.json();
-        await setCookie("token", data.token);
+        const oneDay = 60 * 60 * 24;
+        await setCookie("token", data.token, oneDay);
 
-        return getUser();
+        return {
+            data,
+            ok: true,
+            error: "",
+        };
 
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
 
@@ -54,13 +59,24 @@ export async function validateToken(){
     }
 }
 
-export async function lostPassword({login, redirectUrl}:{login: string; redirectUrl: string}){
+export async function lostPassword(state: {}, formData: FormData){
+    const login = formData.get("login") as string | null
+    const urlPerdeu = formData.get("url") as string | null
     try {
-        const { url, options } = PASSWORD_LOST({
-            login,
-            url: redirectUrl,
-        });
-        const response = await fetch(url, options)
+        if(!login) {
+            throw new Error("Preencha os dados.");
+        }
+        const { url } = PASSWORD_LOST();
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                login,
+                url: urlPerdeu,
+            }),
+        })
         if(!response.ok) throw new Error("Erro ao solicitar recuperação de senha.");
 
         const data = await response.json();
@@ -69,19 +85,17 @@ export async function lostPassword({login, redirectUrl}:{login: string; redirect
             ok: true,
             error: "",
         };
+
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
 
-export async function resetPassword({login, key, password}:{login: string; key: string, password: string}){
+export async function resetPassword(state: {}, formData: FormData){
+    const login = formData.get("login") as string | null
+    const key = formData.get("key") as string | null
+    const password = formData.get("password") as string | null
+
     try {
         const { url, options } = PASSWORD_RESET({
             login,
@@ -90,19 +104,9 @@ export async function resetPassword({login, key, password}:{login: string; key: 
         });
         const response = await fetch(url, options)
         if(!response.ok) throw new Error("Erro ao resetar senha.");
-
-        return {
-            ok: true,
-            error: "",
-        };
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
+
+    redirect("/login");
 }

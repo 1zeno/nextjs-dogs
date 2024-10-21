@@ -1,6 +1,6 @@
 "use server";
 
-import { PHOTO_DELETE, PHOTO_GET, PHOTO_POST, PHOTOS_GET } from "@/api";
+import { PHOTO_DELETE, PHOTO_GET, PHOTO_POST, PHOTOS_GET } from "@/functions/api";
 import { getCookie } from "./cookie";
 
 export type Photo = {

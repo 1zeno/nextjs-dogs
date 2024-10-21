@@ -1,6 +1,6 @@
 import React from "react";
 
-const ErrorMessage = ({error}) => {
+const ErrorMessage = ({error}: {error: string}) => {
     if(!error){
         return null;
     }

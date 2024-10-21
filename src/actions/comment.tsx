@@ -1,6 +1,6 @@
 "use server";
 
-import { COMMENT_POST } from "@/api";
+import { COMMENT_POST } from "@/functions/api";
 import { getCookie } from "./cookie";
 
 export async function createComment(id: string, body: {comment: string}){

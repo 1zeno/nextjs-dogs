@@ -8,7 +8,10 @@ export const metadata: Metadata = {
 export default function Criar() {
     return (
         <main>
-            <LoginCreate />
+            <section className="animeLeft">
+                <h1 className="title">Cadastre-se</h1>
+                <LoginCreate />
+            </section>
         </main>
     );
 }

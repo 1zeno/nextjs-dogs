@@ -8,7 +8,10 @@ export const metadata: Metadata = {
 export default function Perdeu() {
     return (
         <main>
-            <LoginPasswordLost />
+            <section className="animeLeft">
+                <h1 className="title">Perdeu a senha?</h1>
+                <LoginPasswordLost />
+            </section>
         </main>
     );
 }

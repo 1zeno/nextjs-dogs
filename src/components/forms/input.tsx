@@ -1,7 +1,12 @@
 import React from "react";
 import styles from "./Input.module.css";
 
-const Input = ({ label, type, name, value, onChange, error, onBlur }) => {
+type InputProps = React.ComponentProps<"input"> & {
+    label: string;
+    error?: string;
+}
+
+const Input = ({ label, type, name, value, onChange, error, onBlur }: InputProps) => {
     return (
         <div className={styles.wrapper}>
             <label

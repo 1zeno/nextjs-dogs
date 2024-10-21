@@ -8,7 +8,10 @@ export const metadata: Metadata = {
 export default function Resetar() {
     return (
         <main>
-            <LoginPasswordReset />
+            <section className="animeLeft">
+                <h1 className="title">Resete a Senha</h1>
+                <LoginPasswordReset />
+            </section>
         </main>
     );
 }

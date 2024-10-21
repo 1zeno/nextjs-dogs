@@ -1,6 +1,6 @@
 "use server";
 
-import { STATS_GET } from "@/api";
+import { STATS_GET } from "@/functions/api";
 import { getCookie } from "./cookie";
 
 export async function getStats() {

@@ -2,10 +2,11 @@
 
 import { cookies } from "next/headers";
 
-export async function setCookie(key: string, value: string) {
+export async function setCookie(key: string, value: string, maxAge?: number) {
     cookies().set(key, value, {
         httpOnly: true,
         secure: true,
+        maxAge,
     })
     return {ok: true};
 }
