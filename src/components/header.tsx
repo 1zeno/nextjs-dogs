@@ -20,6 +20,7 @@ const Header = () => {
                     <Image
                         src={Dogs}
                         alt="Dogs - Logo"
+                        priority
                     />
                 </Link>
                 <Link className={styles.login} href="/login">{user ? user.username : "Login / Criar"}</Link>

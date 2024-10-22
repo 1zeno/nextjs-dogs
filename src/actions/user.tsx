@@ -6,7 +6,7 @@ import apiError from "@/functions/api-error";
 import {login} from "./auth";
 
 export type Usuario = {
-    id?: string;
+    id: number;
     username: string;
     email: string;
 }

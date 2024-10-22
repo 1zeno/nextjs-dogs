@@ -1,12 +1,16 @@
-"use client";
-import { useUser } from "@/context/UserContext";
+import { getPhotos } from "@/actions/photo";
+import Feed from "@/components/feed/feed";
 
-export default function Home() {
-  const context = useUser()
-  console.log("USER:",context.user)
+export default async function Home() {
+  const initialParams = {
+    page: 1,
+    total: 3,
+    user: 0,
+}
+  const { data } = await getPhotos(initialParams);
   return (
-    <main>
-      <h1>Home</h1>
-    </main>
+    <section className="container mainContainer">
+      {data && <Feed data={data} params={initialParams}/>}
+    </section>
   );
 }

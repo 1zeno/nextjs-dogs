@@ -24,15 +24,17 @@ export default async function RootLayout({
   if(data){
     user = data;
   }
-  
-  console.log("cookie", user)
   return (
     <html lang="pt-BR">
       <body className={type_second.variable}>
         <UserContextProvider user={user}>
-          <Header />
-          {children}
-          <Footer />
+          <div className="App">
+            <Header />
+            <main className="AppBody">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </UserContextProvider>
       </body>
     </html>

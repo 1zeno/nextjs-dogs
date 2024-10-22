@@ -2,6 +2,7 @@
 
 import { PHOTO_DELETE, PHOTO_GET, PHOTO_POST, PHOTOS_GET } from "@/functions/api";
 import { getCookie } from "./cookie";
+import apiError from "@/functions/api-error";
 
 export type Photo = {
     id?: string;
@@ -9,6 +10,18 @@ export type Photo = {
     nome: string;
     peso: string;
     idade: string;
+}
+
+export type PhotoDetails = {
+    id: number;
+    author: string;
+    title: string;
+    date: string;
+    src: string;
+    peso: string;
+    idade: string;
+    acessos: string;
+    total_comments: string;
 }
 
 export async function createPhoto(formData: FormData){
@@ -27,50 +40,38 @@ export async function createPhoto(formData: FormData){
         const response = await fetch(url, options);
         if(!response.ok) throw new Error("Erro ao adicionar usuário.");
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
 
 export async function getPhotos(params:{
-    page: string,
+    page: number,
     total: number,
-    user: string,
+    user?: number,
 }) {
     const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const { url, options } = PHOTOS_GET(params);
-        const response = await fetch(url, options);
+        const { url } = PHOTOS_GET(params);
+        const response = await fetch(url, {
+            method: "GET",
+        },);
 
         if(!response.ok) throw new Error("Erro ao buscar fotos.");
 
-        const data = await response.json();
+        const data: PhotoDetails[] = await response.json();
         return {
             data,
             ok: true,
             error: "",
         };
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
 
-export async function getPhotoById(id: string) {
+export async function getPhotoById(id: number) {
     const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
@@ -87,14 +88,7 @@ export async function getPhotoById(id: string) {
             error: "",
         };
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
 
@@ -109,13 +103,6 @@ export async function deletePhoto(id: string) {
         if(!response.ok) throw new Error("Erro ao buscar foto.");
 
     } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
-        return {
-            errors: [],
-        }
+        return apiError(error);
     }
 }
