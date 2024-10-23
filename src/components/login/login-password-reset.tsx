@@ -3,10 +3,8 @@
 import React from "react";
 import Input from "@/components/forms/input";
 import Button from "@/components/forms/button";
-import useForm from "@/hooks/useForm";;
 import ErrorMessage from "@/helper/error-message";
 import { resetPassword } from "@/actions/auth";
-import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 
 const FormButton = () => {

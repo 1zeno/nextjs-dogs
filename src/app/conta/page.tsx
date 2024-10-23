@@ -2,6 +2,7 @@ import { getPhotos } from "@/actions/photo";
 import { getUser } from "@/actions/user";
 import Feed from "@/components/feed/feed";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
     title: "Minha conta",
@@ -13,7 +14,7 @@ export default async function Conta() {
     const initialParams = {
         page: 1,
         total: 3,
-        user: user ? user.id : 0,
+        user: user?.username,
     }
     const response = await getPhotos(initialParams);
     return (
@@ -21,7 +22,10 @@ export default async function Conta() {
             {response.data && response.data.length > 0 ? (
                 <Feed data={response.data} params={initialParams} />
             ):(
-                <h3>Nenhum item encontrado.</h3>
+                <>
+                    <p style={{marginBottom: "1rem", fontSize: "1.25rem", color: "#444"}}>Nenhum item encontrado.</p>
+                    <Link href={"/conta/postar"} className="button">Postar foto</Link>
+                </>
             )}
         </>
     );

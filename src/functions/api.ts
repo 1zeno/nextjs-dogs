@@ -13,16 +13,10 @@ export const USER_GET = () => {
     }
 }
 
-export const TOKEN_VALIDATE_POST = (token) => {
+export const TOKEN_VALIDATE_POST = () => {
 
     return {
-        url: API_URL + "/jwt-auth/v1/token/validate",
-        options: {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        },
+        url: API_URL + "/jwt-auth/v1/token/validate"
     }
 }
 
@@ -32,62 +26,37 @@ export const USER_POST = () => {
     }
 }
 
-export const PHOTO_POST = (formData, token) => {
+export const PHOTO_POST = () => {
     return {
         url: API_URL + "/api/photo",
-        options: {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        },
     }
 }
 
 export const PHOTOS_GET = ({page, total, user}:{
     page: number,
     total: number,
-    user?: number,
+    user?: string,
 }) => {
     return {
         url: `${API_URL}/api/photo/?_page=${page}&_total=${total}&_user=${user}`,
     }
 }
 
-export const PHOTO_GET = (id) => {
+export const PHOTO_GET = (id: number) => {
     return {
         url: `${API_URL}/api/photo/${id}`,
-        options: {
-            method: "GET",
-        },
     }
 }
 
-export const COMMENT_POST = (id, body) => {
+export const COMMENT_POST = (id: number) => {
     return {
         url: `${API_URL}/api/comment/${id}`,
-        options: {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${window.localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(body),
-        },
     }
 }
 
-export const PHOTO_DELETE = (id, token) => {
+export const PHOTO_DELETE = (id: number) => {
     return {
         url: `${API_URL}/api/photo/${id}`,
-        options: {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        },
     }
 }
 
@@ -97,27 +66,14 @@ export const PASSWORD_LOST = () => {
     }
 }
 
-export const PASSWORD_RESET = (body) => {
+export const PASSWORD_RESET = () => {
     return {
         url: API_URL + "/api/password/reset",
-        options: {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        }
     }
 }
 
-export const STATS_GET = (token) => {
+export const STATS_GET = () => {
     return {
         url: API_URL + "/api/stats",
-        options: {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
     }
 }

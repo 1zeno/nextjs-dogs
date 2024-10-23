@@ -1,5 +1,5 @@
 import { getPhotoById } from "@/actions/photo";
-import PhotoContent from "@/components/comments/photo-content";
+import FeedModal from "@/components/feed/feed-modal";
 import { notFound } from "next/navigation";
 
 interface IProps {
@@ -26,8 +26,6 @@ export default async function Foto(props: IProps) {
     }
 
     return (
-        <section className="container mainContainer">
-            <PhotoContent data={data} single={true} />
-        </section>
+        <FeedModal photo={data} />
     );
 }

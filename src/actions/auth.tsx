@@ -1,7 +1,7 @@
 "use server";
 
 import { PASSWORD_LOST, PASSWORD_RESET, TOKEN_POST, TOKEN_VALIDATE_POST } from "@/functions/api";
-import { getCookie, setCookie } from "./cookie";
+import { getCookie, removeCookie, setCookie } from "./cookie";
 import apiError from "@/functions/api-error";
 import { redirect } from "next/navigation";
 
@@ -39,23 +39,33 @@ export async function login(state: {}, formData: FormData) {
     }
 }
 
+export async function logout(){
+    await removeCookie("token");
+    redirect("/login");
+}
+
 export async function validateToken(){
     try {
         const responseCookie = await getCookie("token");
         if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
        
-        const { url, options } = TOKEN_VALIDATE_POST(responseCookie.cookie?.value);
-        const response = await fetch(url, options)
+        const { url } = TOKEN_VALIDATE_POST();
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${responseCookie.cookie?.value}`,
+            },
+        },)
         if(!response.ok) throw new Error("Erro ao validar token.");
-    } catch (error: unknown) {
-        if(error instanceof Error){
-            return {
-                errors: [error.message],
-            }
-        }
+
+        const data = await response.json();
         return {
-            errors: [],
+            data,
+            ok: true,
+            error: "",
         }
+    } catch (error: unknown) {
+        return apiError(error);
     }
 }
 
@@ -97,12 +107,18 @@ export async function resetPassword(state: {}, formData: FormData){
     const password = formData.get("password") as string | null
 
     try {
-        const { url, options } = PASSWORD_RESET({
-            login,
-            key,
-            password,
-        });
-        const response = await fetch(url, options)
+        const { url } = PASSWORD_RESET();
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                login,
+                key,
+                password,
+            }),
+        })
         if(!response.ok) throw new Error("Erro ao resetar senha.");
     } catch (error: unknown) {
         return apiError(error);

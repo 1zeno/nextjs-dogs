@@ -20,6 +20,8 @@ const Header = () => {
                     <Image
                         src={Dogs}
                         alt="Dogs - Logo"
+                        width={28}
+                        height={22}
                         priority
                     />
                 </Link>

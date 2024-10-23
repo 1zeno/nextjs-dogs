@@ -5,7 +5,6 @@ export default async function Home() {
   const initialParams = {
     page: 1,
     total: 3,
-    user: 0,
 }
   const { data } = await getPhotos(initialParams);
   return (

@@ -3,6 +3,9 @@
 import { PHOTO_DELETE, PHOTO_GET, PHOTO_POST, PHOTOS_GET } from "@/functions/api";
 import { getCookie } from "./cookie";
 import apiError from "@/functions/api-error";
+import { Comment } from "./comment";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 export type Photo = {
     id?: string;
@@ -24,38 +27,57 @@ export type PhotoDetails = {
     total_comments: string;
 }
 
-export async function createPhoto(formData: FormData){
+export type PhotoGet = {
+    photo: PhotoDetails;
+    comments: Comment[];
+}
+
+export async function createPhoto(state: {}, formData: FormData){
     const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
-    const usuario: Photo = {
-        img: formData.get("img") as File,
-        nome: formData.get("nome") as string,
-        peso: formData.get("peso") as string,
-        idade: formData.get("idade") as string,
-    }
+    const img = formData.get("img") as File;
+    const nome = formData.get("nome") as string;
+    const peso = formData.get("peso") as string;
+    const idade = formData.get("idade") as string;
 
     try {
-        const { url, options } = PHOTO_POST(usuario, responseCookie.cookie?.value);
-        const response = await fetch(url, options);
+        if(!nome || !idade || !peso || img.size === 0){
+            throw new Error("Preencha os dados.");
+        }
+        const { url } = PHOTO_POST();
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${responseCookie.cookie?.value}`,
+            },
+            body: formData,
+        },);
         if(!response.ok) throw new Error("Erro ao adicionar usuário.");
     } catch (error: unknown) {
         return apiError(error);
     }
+
+    revalidateTag("photos");
+    redirect("/conta");
 }
 
-export async function getPhotos(params:{
-    page: number,
-    total: number,
-    user?: number,
+export async function getPhotos({page=1,total=3,user}:{
+    page?: number,
+    total?: number,
+    user?: string,
 }) {
-    const responseCookie = await getCookie("token");
-    if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
-
+    
     try {
-        const { url } = PHOTOS_GET(params);
+        const responseCookie = await getCookie("token");
+        if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
+
+        const { url } = PHOTOS_GET({page, total, user});
         const response = await fetch(url, {
             method: "GET",
+            next: {
+                tags: ["photos", "comment"],
+            }
         },);
 
         if(!response.ok) throw new Error("Erro ao buscar fotos.");
@@ -76,12 +98,17 @@ export async function getPhotoById(id: number) {
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const { url, options } = PHOTO_GET(id);
-        const response = await fetch(url, options)
+        const { url } = PHOTO_GET(id);
+        const response = await fetch(url, {
+            method: "GET",
+            next: {
+                tags: ["comment"],
+            }
+        },)
 
         if(!response.ok) throw new Error("Erro ao buscar foto.");
 
-        const data = await response.json();
+        const data: PhotoGet = await response.json();
         return {
             data,
             ok: true,
@@ -92,17 +119,24 @@ export async function getPhotoById(id: number) {
     }
 }
 
-export async function deletePhoto(id: string) {
+export async function deletePhoto(id: number) {
     const responseCookie = await getCookie("token");
     if(!responseCookie.ok) throw new Error("Erro ao buscar token.");
 
     try {
-        const { url, options } = PHOTO_DELETE(id, responseCookie.cookie?.value);
-        const response = await fetch(url, options)
+        const { url } = PHOTO_DELETE(id);
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${responseCookie.cookie?.value}`,
+            },
+        },)
 
         if(!response.ok) throw new Error("Erro ao buscar foto.");
-
     } catch (error: unknown) {
         return apiError(error);
     }
+    revalidateTag("photos");
+    redirect("/conta");
 }

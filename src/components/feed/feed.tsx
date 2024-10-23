@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import FeedModal from "./feed-modal";
 import styles from "./feed.module.css";
 import { getPhotos, PhotoDetails } from "@/actions/photo";
 import FeedPhoto from "./feed-photo";
@@ -12,13 +11,11 @@ interface IProps {
     params: {
         page: number,
         total: number,
-        user: number,
+        user?: string,
     }
 }
 
 const Feed = (props: IProps) => {
-
-    const [modalPhoto, setModalPhoto] = React.useState<PhotoDetails | null>(null);
     const [page, setPage] = React.useState(props.params.page);
     const [infinite, setInfinite] = React.useState(true);
 
@@ -80,14 +77,12 @@ const Feed = (props: IProps) => {
 
     return (
         <>
-            {modalPhoto && <FeedModal photo={modalPhoto} setModalPhoto={setModalPhoto} />}
             {data.map((photos, index) => (
                 <ul className={`${styles.feed} animeLeft`} key={index}>
                     {photos.map(photo => (
                         <FeedPhoto
                             key={photo.id}
                             photo={photo}
-                            setModalPhoto={setModalPhoto}
                             index={index}
                         />
                     ))}

@@ -1,17 +1,16 @@
 "use client";
 
 import React from "react";
-import MinhasFotos from "@/assets/feed.svg";
-import Estatisticas from "@/assets/estatisticas.svg";
-import AdicionarFoto from "@/assets/adicionar.svg";
-import Sair from "@/assets/sair.svg";
+import MinhasFotos from "@/icons/feed-icon";
+import Estatisticas from "@/icons/estatisticas-icon";
+import AdicionarFoto from "@/icons/adicionar-icon";
+import Sair from "@/icons/sair-icon";
 import styles from "./user-header-nav.module.css";
 import useMedia from "@/hooks/useMedia";
-import Image from "next/image";
 import { useUser } from "@/context/UserContext";
-import { removeCookie } from "@/actions/cookie";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/actions/auth";
 
 const UserHeaderNav = () => {
     const [ mobileMenu, setMobileMenu ] = React.useState(false);
@@ -21,9 +20,8 @@ const UserHeaderNav = () => {
     const mobile = useMedia("(max-width: 40rem)");
 
     async function handleLogout(){
-        await removeCookie("token");
+        await logout();
         setUser(null);
-        window.location.href = "/login";
     }
 
     React.useEffect(()=>{
@@ -43,31 +41,19 @@ const UserHeaderNav = () => {
             }
             <nav className={`${mobile? styles.navMobile : styles.nav} ${mobileMenu && styles.navMobileActive}`}>
                 <Link href="/conta">
-                    <Image
-                        src={MinhasFotos}
-                        alt="minhas-fotos"
-                    />
+                    <MinhasFotos />
                     {mobile && "Minhas Fotos"}
                 </Link>
                 <Link href="/conta/estatisticas">
-                    <Image
-                        src={Estatisticas}
-                        alt="estatisticas"
-                    />
+                    <Estatisticas />
                     {mobile && "Estatísticas"}
                 </Link>
                 <Link href="/conta/postar">
-                    <Image
-                        src={AdicionarFoto}
-                        alt="adicionar-foto"
-                    />
+                    <AdicionarFoto />
                     {mobile && "Adicionar Foto"}
                 </Link>
                 <button onClick={handleLogout}>
-                    <Image
-                        src={Sair}
-                        alt="sair"
-                    />
+                    <Sair />
                     {mobile && "Sair"}
                 </button>
             </nav>
